@@ -3,20 +3,35 @@
 
 import * as React from 'react'
 
+const initialSquares = Array(9).fill(null);
 function Board() {
   // 🐨 squares is the state for this component. Add useState for squares
-  const squares = Array(9).fill(null)
+  const [squares, setSquares] = React.useState(initialSquares);
 
   // 🐨 We'll need the following bits of derived state:
   // - nextValue ('X' or 'O')
   // - winner ('X', 'O', or null)
   // - status (`Winner: ${winner}`, `Scratch: Cat's game`, or `Next player: ${nextValue}`)
+  // derived state values are based on the managed state value - squares
+  const nextValue = calculateNextValue(squares);
+  const winner = calculateWinner(squares);
+  const status = calculateStatus(winner, squares, nextValue);
+  
   // 💰 I've written the calculations for you! So you can use my utilities
   // below to create these variables
 
   // This is the function your square click handler will call. `square` should
   // be an index. So if they click the center square, this will be `4`.
   function selectSquare(square) {
+    // Dont want to mutate state being managed
+    if (winner || squares[square]) {
+      return // doesnt overwrite value or stops when someone wins
+    }
+    const squaresCopy = [...squares]; // make a copy by spread
+    squaresCopy[square] = nextValue; // whoever's turn it was will be in the square
+    setSquares(squaresCopy);
+
+
     // 🐨 first, if there's already winner or there's already a value at the
     // given square index (like someone clicked a square that's already been
     // clicked), then return early so we don't make any state changes
@@ -34,8 +49,7 @@ function Board() {
   }
 
   function restart() {
-    // 🐨 reset the squares
-    // 💰 `Array(9).fill(null)` will do it!
+    setSquares(initialSquares);
   }
 
   function renderSquare(i) {
@@ -48,8 +62,8 @@ function Board() {
 
   return (
     <div>
-      {/* 🐨 put the status in the div below */}
-      <div className="status">STATUS</div>
+      <div className="status">      { status }
+      </div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
